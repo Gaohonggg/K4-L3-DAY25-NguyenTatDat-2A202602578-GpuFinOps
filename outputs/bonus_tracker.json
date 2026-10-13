@@ -1,0 +1,151 @@
+{
+  "backend": "mock",
+  "budgets_usd": {
+    "team-chat": 0.05,
+    "team-eval": 100.0
+  },
+  "spend_usd": {
+    "team-chat": 0.04604999999999999,
+    "team-eval": 0.0002595
+  },
+  "accepted_requests": 15,
+  "blocked_key": "team-chat",
+  "blocked_after_requests": 10,
+  "requests": [
+    {
+      "ts": "11:59:44",
+      "key": "team-chat",
+      "model": "large",
+      "in": 255,
+      "out": 256,
+      "cost": 0.004605,
+      "text": "[mock large] ok (255 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-chat",
+      "model": "large",
+      "in": 255,
+      "out": 256,
+      "cost": 0.004605,
+      "text": "[mock large] ok (255 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-chat",
+      "model": "large",
+      "in": 255,
+      "out": 256,
+      "cost": 0.004605,
+      "text": "[mock large] ok (255 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-chat",
+      "model": "large",
+      "in": 255,
+      "out": 256,
+      "cost": 0.004605,
+      "text": "[mock large] ok (255 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-chat",
+      "model": "large",
+      "in": 255,
+      "out": 256,
+      "cost": 0.004605,
+      "text": "[mock large] ok (255 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-chat",
+      "model": "large",
+      "in": 255,
+      "out": 256,
+      "cost": 0.004605,
+      "text": "[mock large] ok (255 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-chat",
+      "model": "large",
+      "in": 255,
+      "out": 256,
+      "cost": 0.004605,
+      "text": "[mock large] ok (255 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-chat",
+      "model": "large",
+      "in": 255,
+      "out": 256,
+      "cost": 0.004605,
+      "text": "[mock large] ok (255 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-chat",
+      "model": "large",
+      "in": 255,
+      "out": 256,
+      "cost": 0.004605,
+      "text": "[mock large] ok (255 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-chat",
+      "model": "large",
+      "in": 255,
+      "out": 256,
+      "cost": 0.004605,
+      "text": "[mock large] ok (255 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-eval",
+      "model": "small",
+      "in": 7,
+      "out": 256,
+      "cost": 5.2e-05,
+      "text": "[mock small] ok (7 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-eval",
+      "model": "small",
+      "in": 7,
+      "out": 256,
+      "cost": 5.2e-05,
+      "text": "[mock small] ok (7 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-eval",
+      "model": "small",
+      "in": 7,
+      "out": 256,
+      "cost": 5.2e-05,
+      "text": "[mock small] ok (7 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-eval",
+      "model": "small",
+      "in": 7,
+      "out": 256,
+      "cost": 5.2e-05,
+      "text": "[mock small] ok (7 in / 256 out)"
+    },
+    {
+      "ts": "11:59:44",
+      "key": "team-eval",
+      "model": "small",
+      "in": 7,
+      "out": 256,
+      "cost": 5.2e-05,
+      "text": "[mock small] ok (7 in / 256 out)"
+    }
+  ]
+}

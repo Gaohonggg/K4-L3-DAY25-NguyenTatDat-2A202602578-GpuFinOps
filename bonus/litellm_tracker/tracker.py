@@ -9,11 +9,8 @@ from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from finops import pricing
+from finops.inference import MODEL_PRICES
 
-MODEL_PRICES = {  # $/1M (input, output)
-    "small": (0.20, 0.40),
-    "large": (3.00, 15.00),
-}
 
 
 class BudgetExceeded(Exception):
@@ -23,6 +20,8 @@ class BudgetExceeded(Exception):
 class CostTracker:
     def __init__(self, budgets: dict | None = None):
         self.budgets = budgets or {}          # api_key -> monthly USD cap
+        if any(cap < 0 for cap in self.budgets.values()):
+            raise ValueError("Budgets must be non-negative")
         self.spend = defaultdict(float)       # api_key -> USD spent
         self.log = []
 
@@ -32,6 +31,8 @@ class CostTracker:
     def complete(self, api_key: str, model: str, prompt: str,
                  max_output_tokens: int = 256, cached_input_tokens: int = 0,
                  batch: bool = False) -> dict:
+        if max_output_tokens < 0 or cached_input_tokens < 0:
+            raise ValueError("Token counts must be non-negative")
         in_tok = self._estimate_tokens(prompt)
         out_tok = max_output_tokens
         pin, pout = MODEL_PRICES[model]

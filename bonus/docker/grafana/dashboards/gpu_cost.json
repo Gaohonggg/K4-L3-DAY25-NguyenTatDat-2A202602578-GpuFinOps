@@ -1,12 +1,30 @@
 {
   "title": "Lab 25 — GPU Cost & Efficiency",
+  "uid": "gpu-cost-efficiency",
   "schemaVersion": 39,
+  "time": {"from": "now-15m", "to": "now"},
+  "refresh": "10s",
   "panels": [
-    {"type": "timeseries", "title": "GPU-Util % (the 'busy' clock)", "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
-     "targets": [{"expr": "gpu_util_pct"}]},
-    {"type": "timeseries", "title": "MFU (real efficiency)", "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
-     "targets": [{"expr": "gpu_mfu"}]},
-    {"type": "bargauge", "title": "Wasted $/hr (paid FLOPs not used)", "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
-     "targets": [{"expr": "gpu_wasted_cost_usd_per_hr"}]}
+    {"id": 1, "type": "timeseries", "title": "GPU-Util % (the 'busy' clock)", "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+     "datasource": {"type": "prometheus", "uid": "gpu-cost-prometheus"},
+     "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100}, "overrides": []},
+     "targets": [{"refId": "A", "expr": "gpu_util_pct", "legendFormat": "{{gpu_id}}"}]},
+    {"id": 2, "type": "timeseries", "title": "MFU (real efficiency)", "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+     "datasource": {"type": "prometheus", "uid": "gpu-cost-prometheus"},
+     "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}, "overrides": []},
+     "targets": [{"refId": "A", "expr": "gpu_mfu", "legendFormat": "{{gpu_id}}"}]},
+    {"id": 3, "type": "bargauge", "title": "FLOPs cost proxy ($/hr, not recoverable savings)", "gridPos": {"h": 10, "w": 24, "x": 0, "y": 8},
+     "datasource": {"type": "prometheus", "uid": "gpu-cost-prometheus"},
+     "options": {"orientation": "horizontal", "displayMode": "gradient", "reduceOptions": {"calcs": ["lastNotNull"], "values": false}},
+     "fieldConfig": {"defaults": {"unit": "currencyUSD", "min": 0, "decimals": 3}, "overrides": []},
+     "targets": [{"refId": "A", "expr": "sort_desc(gpu_wasted_cost_usd_per_hr)", "instant": true, "range": false, "legendFormat": "{{gpu_id}}"}]},
+    {"id": 4, "type": "timeseries", "title": "MBU (bandwidth utilization)", "gridPos": {"h": 8, "w": 12, "x": 0, "y": 18},
+     "datasource": {"type": "prometheus", "uid": "gpu-cost-prometheus"},
+     "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}, "overrides": []},
+     "targets": [{"refId": "A", "expr": "gpu_mbu", "legendFormat": "{{gpu_id}}"}]},
+    {"id": 5, "type": "timeseries", "title": "GPU power (watts)", "gridPos": {"h": 8, "w": 12, "x": 12, "y": 18},
+     "datasource": {"type": "prometheus", "uid": "gpu-cost-prometheus"},
+     "fieldConfig": {"defaults": {"unit": "watt", "min": 0}, "overrides": []},
+     "targets": [{"refId": "A", "expr": "gpu_power_w", "legendFormat": "{{gpu_id}}"}]}
   ]
 }

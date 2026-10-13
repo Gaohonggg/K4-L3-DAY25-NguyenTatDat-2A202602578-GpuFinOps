@@ -1,8 +1,8 @@
 # Optional observability stack for Lab 25: Prometheus + Grafana + a GPU cost exporter.
-# Usage:  docker compose up   (then Grafana at http://localhost:3000, admin/admin)
+# Usage: docker compose up (Grafana http://localhost:3300, admin/admin)
 services:
   exporter:
-    image: python:3.12-slim
+    image: python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
     working_dir: /app
     command: python exporter.py
     environment:
@@ -11,22 +11,22 @@ services:
     volumes:
       - ./exporter.py:/app/exporter.py:ro
       - ../../data:/data:ro
-    ports: ["9101:9101"]
+    ports: ["127.0.0.1:9101:9101"]
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus@sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    ports: ["9090:9090"]
+    ports: ["127.0.0.1:9090:9090"]
     depends_on: [exporter]
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana@sha256:b28bae15e219c998fb0e0424ed724930cc61b1f61fb404d47c862f9a23f9e572
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
-    ports: ["3000:3000"]
+    ports: ["127.0.0.1:3300:3000"]
     depends_on: [prometheus]

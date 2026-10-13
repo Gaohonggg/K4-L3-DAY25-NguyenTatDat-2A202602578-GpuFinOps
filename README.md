@@ -26,11 +26,11 @@ Bạn vừa được tuyển làm **FinOps Engineer** tại *NimbusAI* — một
 cd Day25-Track2-GPU-FinOps-Lab
 
 # Tạo và kích hoạt virtual environment
-python -m venv .venv
+uv venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
 # Cài đặt thư viện
-pip install -r requirements.txt
+uv pip install --python .venv/bin/python -r requirements.txt
 
 # Kiểm tra cài đặt (phải in ra 11/11 checks passed)
 python verify.py
@@ -44,7 +44,31 @@ python missions/run_all.py    # Chạy M1 → M5, in kết quả
 pytest -q                     # Chạy 15 unit + integration tests
 ```
 
-Kết quả xuất ra thư mục `outputs/`: `report.md`, `savings.png`, `focus_export.csv`.
+Kết quả xuất ra thư mục `outputs/`: `report.md`, `savings.png`, `focus_export.csv`,
+`writeup.md` và `analysis.json` (số liệu đầy đủ để đối soát).
+
+### Phần mở rộng đã triển khai
+
+- **Reasoning budget:** tỷ trọng `$`/`Wh`, so sánh cùng tokens và kịch bản cap 10%/5%/2%.
+- **Carbon-aware scheduling:** training interruptible theo đúng thời lượng job, so sánh 5 vùng.
+- **MBU-aware right-sizing:** kiểm tra VRAM/bandwidth/compute, so sánh headroom BW 60% và 75%.
+- M3 tính đủ giờ cam kết reserved và báo cáo riêng kịch bản theo `days` thực tế.
+- M4 xuất toàn bộ 2.400 requests, dùng cùng phép tính chi phí với M2.
+- M5 không cộng cơ hội telemetry vào purchasing khi thiếu khóa liên kết GPU → job.
+
+Tests gốc giữ nguyên; kiểm tra bổ sung nằm trong `validation/`:
+
+```bash
+.venv/bin/python -m pytest -q tests validation
+.venv/bin/python bonus/litellm_tracker/demo.py
+docker compose -p gpufinops-lab25 -f bonus/docker/docker-compose.yml up -d
+.venv/bin/python validation/verify_observability.py
+```
+
+Grafana: <http://localhost:3300> (`admin/admin`), Prometheus: <http://localhost:9090>.
+Budget tracker dùng mock backend, không gọi provider và không cần API key.
+Docker images được ghim digest; `outputs/bonus_*.json` và `bonus_metrics.prom` là
+bằng chứng nộp kèm. `.venv/`, cache và `logs/` được ignore.
 
 ---
 

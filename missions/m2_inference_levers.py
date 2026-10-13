@@ -5,28 +5,18 @@ Run: python missions/m2_inference_levers.py
 from __future__ import annotations
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
-from missions._common import load_csv, num
+from missions._common import load_csv
 from finops import pricing
+from finops.inference import MODEL_PRICES, inference_analysis
 
-# $/1M tokens (input, output) — illustrative 2026.
-MODEL_PRICES = {"small": (0.20, 0.40), "large": (3.00, 15.00)}
 
 
 def run(verbose: bool = True) -> dict:
     rows = load_csv("token_usage.csv")
-    base_cost = opt_cost = 0.0
-    total_tokens = 0
-    for r in rows:
-        inp, out = int(num(r["input_tokens"])), int(num(r["output_tokens"]))
-        cached = int(num(r["cached_input_tokens"]))
-        is_batch = bool(int(num(r["is_batch"])))
-        total_tokens += inp + out
-        # BASELINE: naive deployment — everything on the large model, no cache, no batch
-        lin, lout = MODEL_PRICES["large"]
-        base_cost += pricing.request_cost(inp, out, lin, lout)
-        # OPTIMIZED: cascade (route_tier), prompt caching, batch API
-        pin, pout = MODEL_PRICES[r["route_tier"]]
-        opt_cost += pricing.request_cost(inp, out, pin, pout, cached_in=cached, batch=is_batch)
+    analysis = inference_analysis(rows)
+    base_cost = analysis["stages"][0]["cost_usd"]
+    opt_cost = analysis["stages"][-1]["cost_usd"]
+    total_tokens = analysis["total_tokens"]
 
     base_pm = pricing.dollars_per_million(base_cost, total_tokens)
     opt_pm = pricing.dollars_per_million(opt_cost, total_tokens)
@@ -39,11 +29,20 @@ def run(verbose: bool = True) -> dict:
         print(f"optimized : ${opt_cost:,.2f}/day   ${opt_pm:.3f}/1M-token")
         print(f"savings   : {savings_pct:.1f}%  (cascade + caching + batch)")
         print(f"discount stack (batch + 100% cache): {pricing.discount_stack(batch=True, cache_hit_frac=1.0):.3f} of naive")
+        for s in analysis["stages"]:
+            print(f"  {s['stage']:8}: ${s['cost_usd']:.6f}/day; ${s['per_m']:.6f}/1M-token")
+        for g in analysis["groups"]:
+            print(f"  reasoning={g['reasoning']}: {g['requests']} requests, "
+                  f"${g['cost_usd']:.6f}, {g['energy_wh']:.3f} Wh")
+        for s in analysis["reasoning_scenarios"]:
+            print(f"  reasoning cap={s['cap']:.0%}: downgrade {s['downgraded']} requests; "
+                  f"save ${s['savings_usd']:.6f}/day and {s['savings_wh']:.3f} Wh/day")
 
     return {
         "baseline_daily": round(base_cost, 2), "optimized_daily": round(opt_cost, 2),
         "baseline_per_m": round(base_pm, 3), "optimized_per_m": round(opt_pm, 3),
         "savings_pct": round(savings_pct, 1), "total_tokens": total_tokens,
+        "analysis": analysis, "baseline_daily_exact": base_cost, "optimized_daily_exact": opt_cost,
     }
 
 

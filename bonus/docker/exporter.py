@@ -16,7 +16,7 @@ def _load():
     with open(os.path.join(DATA_DIR, "price_catalog.csv")) as f:
         for r in csv.DictReader(f):
             cat[r["gpu_type"]] = r
-    agg = defaultdict(lambda: {"util": [], "mfu": [], "power": [], "type": None})
+    agg = defaultdict(lambda: {"util": [], "mfu": [], "mbu": [], "power": [], "type": None})
     with open(os.path.join(DATA_DIR, "gpu_telemetry.csv")) as f:
         for r in csv.DictReader(f):
             a = agg[r["gpu_id"]]
@@ -24,6 +24,7 @@ def _load():
             peak = float(cat[r["gpu_type"]]["peak_tflops_fp16"]) or 1.0
             a["util"].append(float(r["gpu_util_pct"]))
             a["mfu"].append(float(r["achieved_tflops"]) / peak)
+            a["mbu"].append(float(r["achieved_bw_tbs"]) / float(cat[r["gpu_type"]]["peak_bw_tbs"]))
             a["power"].append(float(r["power_w"]))
     return cat, agg
 
@@ -37,8 +38,12 @@ def render() -> str:
         "# TYPE gpu_mfu gauge",
         "# HELP gpu_hourly_cost_usd on-demand $/GPU-hr",
         "# TYPE gpu_hourly_cost_usd gauge",
-        "# HELP gpu_wasted_cost_usd_per_hr $/hr paid for FLOPs not used (1-mfu)*cost",
+        "# HELP gpu_wasted_cost_usd_per_hr FLOPs-based cost proxy, not recoverable savings (1-mfu)*cost",
         "# TYPE gpu_wasted_cost_usd_per_hr gauge",
+        "# HELP gpu_mbu Model Bandwidth Utilization",
+        "# TYPE gpu_mbu gauge",
+        "# HELP gpu_power_w Average observed GPU power watts",
+        "# TYPE gpu_power_w gauge",
     ]
     for gid, a in agg.items():
         gtype = a["type"]
@@ -51,6 +56,8 @@ def render() -> str:
         out.append(f"gpu_mfu{lbl} {mfu:.4f}")
         out.append(f"gpu_hourly_cost_usd{lbl} {cost:.2f}")
         out.append(f"gpu_wasted_cost_usd_per_hr{lbl} {wasted:.4f}")
+        out.append(f"gpu_mbu{lbl} {sum(a['mbu']) / len(a['mbu']):.4f}")
+        out.append(f"gpu_power_w{lbl} {sum(a['power']) / len(a['power']):.2f}")
     return "\n".join(out) + "\n"
 
 
